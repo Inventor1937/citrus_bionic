@@ -11,7 +11,6 @@ include $(LOCAL_PATH)/arch-$(TARGET_ARCH)/$(TARGET_ARCH).mk
 libc_common_additional_dependencies += \
     $(LOCAL_PATH)/arch-$(TARGET_ARCH)/$(TARGET_ARCH).mk
 
-
 ifdef TARGET_2ND_ARCH
 # Load config for TARGET_2ND_ARCH
 my_2nd_arch_prefix := $(TARGET_2ND_ARCH_VAR_PREFIX)
@@ -647,6 +646,10 @@ ifeq ($(strip $(DEBUG_BIONIC_LIBC)),true)
   libc_common_cflags += -DDEBUG
 endif
 
+ifeq ($(strip $(BOARD_USES_LIBC_WRAPPER)),true)
+  libc_common_cflags += -DUSE_WRAPPER
+endif
+
 libc_malloc_src := bionic/jemalloc_wrapper.cpp
 libc_common_c_includes += external/jemalloc/include
 
@@ -1026,11 +1029,6 @@ LOCAL_CFLAGS := $(libc_common_cflags) \
 LOCAL_CONLYFLAGS := $(libc_common_conlyflags)
 LOCAL_CPPFLAGS := $(libc_common_cppflags) -Wold-style-cast
 
-
-ifeq ($(BOARD_USES_LIBC_WRAPPER),true)
-LOCAL_CPPFLAGS += -DUSE_WRAPPER
-endif
-
 LOCAL_C_INCLUDES := $(libc_common_c_includes) bionic/libstdc++/include
 LOCAL_MODULE := libc_bionic
 LOCAL_CLANG := $(use_clang)
@@ -1057,10 +1055,6 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := $(libc_bionic_ndk_src_files)
 LOCAL_CFLAGS := $(libc_common_cflags) \
     -Wframe-larger-than=2048
-
-ifeq ($(BOARD_USES_LIBC_WRAPPER),true)
-LOCAL_CFLAGS += -DUSE_WRAPPER
-endif
 
 LOCAL_CONLYFLAGS := $(libc_common_conlyflags)
 LOCAL_CPPFLAGS := $(libc_common_cppflags) -Wold-style-cast \
@@ -1223,10 +1217,6 @@ LOCAL_SRC_FILES_arm += \
 LOCAL_CFLAGS := $(libc_common_cflags) \
     -DLIBC_STATIC \
 
-ifeq ($(BOARD_USES_LIBC_WRAPPER),true)
-LOCAL_CFLAGS += -DUSE_WRAPPER
-endif
-
 LOCAL_WHOLE_STATIC_LIBRARIES := \
     libc_bionic_ndk \
     libc_cxa \
@@ -1259,11 +1249,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := $(libc_common_src_files)
-LOCAL_CFLAGS := $(libc_common_cflags) \
-
-ifeq ($(BOARD_USES_LIBC_WRAPPER),true)
-LOCAL_CFLAGS += -DUSE_WRAPPER
-endif
+LOCAL_CFLAGS := $(libc_common_cflags)
 
 LOCAL_CONLYFLAGS := $(libc_common_conlyflags)
 LOCAL_CPPFLAGS := $(libc_common_cppflags)
@@ -1412,7 +1398,6 @@ LOCAL_SRC_FILES := \
 
 ifeq ($(BOARD_USES_LIBC_WRAPPER),true)
     LOCAL_SRC_FILES += codeaurora/PropClient.cpp
-    LOCAL_CPPFLAGS += -DUSE_WRAPPER
 endif
 
 LOCAL_MODULE := libc
